@@ -259,14 +259,37 @@ open class HorizontalBarChartRenderer: BarChartRenderer
                 continue
             }
             
+//            if !isSingleColor
+//            {
+//                // Set the color for the currently drawn value. If the index is out of bounds, reuse colors.
+//                context.setFillColor(dataSet.color(atIndex: j).cgColor)
+//            }
+//
+//            context.fill(barRect)
+
             if !isSingleColor
             {
-                // Set the color for the currently drawn value. If the index is out of bounds, reuse colors.
-                context.setFillColor(dataSet.color(atIndex: j).cgColor)
+                let fillColors = [dataSet.color(atIndex: 0).cgColor, dataSet.color(atIndex: 1).cgColor]
+                let locations:[CGFloat] = [0.0, 0.5,1.0]
+                
+                context.saveGState()
+                context.clip(to: barRect)
+                let gradient:CGGradient
+                let colorspace:CGColorSpace
+                colorspace = CGColorSpaceCreateDeviceRGB()
+                
+                gradient = CGGradient(colorsSpace: colorspace, colors: fillColors as CFArray, locations: locations)!
+                
+                //horizontal Gradient
+                let startPoint:CGPoint = CGPoint(x: viewPortHandler.contentLeft, y: 0.0)
+                let endPoint:CGPoint = CGPoint(x: viewPortHandler.contentRight, y: 0.0)
+                
+                context.drawLinearGradient(gradient, start: startPoint, end: endPoint, options: .init(rawValue: 0))
+                context.restoreGState()
+            } else {
+                context.fill(barRect)
             }
-
-            context.fill(barRect)
-
+            
             if drawBorder
             {
                 context.setStrokeColor(borderColor.cgColor)
